@@ -5,7 +5,9 @@ nvidia-docker run -it -v /data0/0_DATA:/data 1adrianb/facealignment-torch
 
 docker exec -it cool_nightingale /bin/bash
 
-
+th main_image.lua -input /data/0_Face_3D/3_ESRC_OBJ/ -name_gl train_render.txt \
+-type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data/0_Face_3D/3_ESRC_OBJ \
+-preffix_bbox _bbox -preffix_save _lm2d_v3
 --]]
 
 require 'torch'
@@ -24,7 +26,7 @@ require('cudnn')
 
 -- Load optional data-loading libraries
 matio = xrequire('matio') -- matlab
-npy4th = xrequire('npy4th') -- python numpy
+-- npy4th = xrequire('npy4th') -- python numpy
 
 local FaceDetector = require 'facedetection_dlib'
 
@@ -41,22 +43,22 @@ end
 function getGlobalList(data_path)
     print('getGlobalList...')
 
+
     local filesList = {}
     cnt = 1
     file = io.open(data_path,"r");
     for line in file:lines() do
-        print(cnt ..":".. line)
+        -- print(cnt ..":".. line)
         filesList[cnt] = line
         cnt = cnt + 1
     end
     file:close()
-
     print('Found '..#filesList..' images')
     return filesList
 end
 
 function getBBox(data_path)
-    print('getBBox...')
+    -- print('getBBox...')
 
     file = io.open(data_path,"r");
     for line in file:lines() do
@@ -65,13 +67,14 @@ function getBBox(data_path)
     -- print(line_bbox)
     bbox = string.split(line_bbox, ',')
     file:close()
-    print('Found '..#bbox..' axis')
+    --print('Found '..#bbox..' axis')
     return bbox
 end
 
 --CMD: th main_image.lua --input /data0/0_DATA/0_Face_3D/3_ESRC_OBJ/ --name_gl train_render.txt
+print("Start landmark detection")
 local data_top =  opts.input
-local name_gl = opt.name_gl
+local name_gl = opts.name_gl
 local data_path = data_top..name_gl
 local fileList = getGlobalList(data_path)
 -- local fileList, requireDetectionCnt = utils.getFileList(opts)
@@ -79,7 +82,7 @@ local fileList = getGlobalList(data_path)
 local predictions = {}
 local faceDetector = nil
 
-if requireDetectionCnt > 0 then faceDetector = FaceDetector() end
+-- if requireDetectionCnt > 0 then faceDetector = FaceDetector() end
 
 
 --creat a cpu copy to clone model from it to gpu if limited gpu option is true
@@ -125,14 +128,14 @@ end
 for i = 1, #fileList do
 
   collectgarbage()
-  print("processing ",fileList[i].image)
+  print("processing ",fileList[i])
     local list_gl = string.split(fileList[i], ' ')
 
     local name_subfolder = list_gl[1]
     local name_pure = list_gl[2]
 
     local path_image = data_top..name_subfolder..'/'..name_pure..'.jpg'
-    local path_bbox = data_top..name_subfolder..'/'..name_pure..'_bbox.txt'
+    local path_bbox = data_top..name_subfolder..'/'..name_pure..opts.preffix_bbox..'.txt'
     local img = image.load(path_image)
     local detectedFace = getBBox(path_bbox)
     df_center, df_scale = utils.get_normalisation_bb(detectedFace)
@@ -209,18 +212,20 @@ for i = 1, #fileList do
         detectedFace[3] = detectedFace[3]-detectedFace[1]
         detectedFace[4] = detectedFace[4]-detectedFace[2]
     end
-    utils.plot(img, preds_hm, detectedFace)
+    -- utils.plot(img, preds_hm, detectedFace)
   
   end
 
   if opts.save then
-      local dest = opts.output..'/'..paths.basename(fileList[i].image, '.'..paths.extname(fileList[i].image))
+      -- local dest = opts.output..'/'..paths.basename(fileList[i].image, '.'..paths.extname(fileList[i].image))
+      local dest = data_top..name_subfolder..'/'..name_pure
       if opts.outputFormat == 't7' then
         torch.save(dest..'.t7', preds_img)
       elseif opts.outputFormat == 'txt' then
         -- csv without header
-        local out = torch.DiskFile(dest .. opt.preffix .. '.txt', 'w')
+        local out = torch.DiskFile(dest .. opts.preffix_save .. '.txt', 'w')
         for i=1,68 do
+              print(preds_img:size(1), preds_img:size(2))
               if preds_img:size(2)==3 then
                   out:writeString(tostring(preds_img[{i,1}]) .. ',' .. tostring(preds_img[{i,2}]) .. ',' .. tostring(preds_img[{i,3}]) .. '\n')
               else
