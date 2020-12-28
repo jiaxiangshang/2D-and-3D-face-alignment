@@ -177,6 +177,15 @@ function utils.get_normalisation(bbox)
     return center, (math.abs(maxX-minX)+math.abs(maxY-minY))/195, math.sqrt((maxX-minX)*(maxY-minY))
 end
 
+function utils.get_normalisation_bb(bbox)
+    local minX, minY, maxX, maxY, score = unpack(bbox)
+
+    local center = torch.FloatTensor{maxX-(maxX-minX)/2, maxY-(maxY-minY)/2}
+    center[2] =center[2]-((maxY-minY)*0.12)
+
+    return center, (math.abs(maxX-minX)+math.abs(maxY-minY))/195, math.sqrt((maxX-minX)*(maxY-minY))
+end
+
 function utils.bounding_box(iterable)
     local mins = torch.min(iterable, 1):view(2)
     local maxs = torch.max(iterable, 1):view(2)
@@ -309,14 +318,14 @@ function utils.getFileList(opts)
 
             filesList[#filesList+1] = data_pts
 
-	elseif paths.filep(data_path..f:sub(1,#f-4)..'_bb.t7') then -- TODO: Improve this
-            local bdBox = utils.loadUnkownFile(data_path..f:sub(1,#f-4)..'_bb') -- minX, minY, maxX, maxY
-            local center, scale, normby = utils.get_normalisation(bdBox) 
-            data_pts.image = data_path..f
-            data_pts.scale = scale
-            data_pts.center = center
-            data_pts.points = torch.zeros(68,2) -- holder for pts
-            data_pts.bbox_size = normby
+        elseif paths.filep(data_path..f:sub(1,#f-4)..'_bb.t7') then -- TODO: Improve this
+                local bdBox = utils.loadUnkownFile(data_path..f:sub(1,#f-4)..'_bb') -- minX, minY, maxX, maxY
+                local center, scale, normby = utils.get_normalisation(bdBox)
+                data_pts.image = data_path..f
+                data_pts.scale = scale
+                data_pts.center = center
+                data_pts.points = torch.zeros(68,2) -- holder for pts
+                data_pts.bbox_size = normby
 
             filesList[#filesList+1] = data_pts
         elseif opts.detectFaces then
