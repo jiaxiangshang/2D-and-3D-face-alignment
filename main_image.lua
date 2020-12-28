@@ -48,7 +48,6 @@ function getGlobalList(data_path)
     cnt = 1
     file = io.open(data_path,"r");
     for line in file:lines() do
-        -- print(cnt ..":".. line)
         filesList[cnt] = line
         cnt = cnt + 1
     end
@@ -226,10 +225,10 @@ for i = 1, #fileList do
         local out = torch.DiskFile(dest .. opts.preffix_save .. '.txt', 'w')
         for i=1,68 do
               print(preds_img:size(1), preds_img:size(2))
-              if preds_img:size(2)==3 then
-                  out:writeString(tostring(preds_img[{i,1}]) .. ',' .. tostring(preds_img[{i,2}]) .. ',' .. tostring(preds_img[{i,3}]) .. '\n')
+              if preds_img:size(3)==3 then
+                  out:writeString(tostring(preds_img[{1, i,1}]) .. ',' .. tostring(preds_img[{1, i,2}]) .. ',' .. tostring(preds_img[{1, i,3}]) .. '\n')
               else
-                out:writeString(tostring(preds_img[{i,1}]) .. ',' .. tostring(preds_img[{i,2}]) .. '\n')
+                out:writeString(tostring(preds_img[{1, i,1}]) .. ',' .. tostring(preds_img[{1, i,2}]) .. '\n')
               end
         end
         out:close()
