@@ -25,8 +25,8 @@ local function parse( arg )
     cmd:option('-outputFormat', 'txt', 'Output format: t7 | txt')
 
     --
-    cmd:option('-preffix', '_lm2d_v3', 'Output format: t7 | txt')
-
+    cmd:option('-preffix_save', '_lm2d_v3', 'Output format: t7 | txt')
+    cmd:option('-preffix_bbox', '_lm2d_v3', 'Output format: t7 | txt')
     cmd:text()
 
     local opt = cmd:parse(arg or {})
