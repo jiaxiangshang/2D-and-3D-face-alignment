@@ -1,6 +1,4 @@
 --[[
-nvidia-docker run -it 1adrianb/facealignment-torch
-
 nvidia-docker run -it -v /data0/0_DATA:/data 1adrianb/facealignment-torch
 
 docker exec -it cool_nightingale /bin/bash
