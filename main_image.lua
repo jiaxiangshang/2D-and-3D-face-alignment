@@ -6,6 +6,11 @@ docker exec -it cool_nightingale /bin/bash
 th main_image.lua -input /data/0_Face_3D/3_ESRC_OBJ/ -name_gl train_render.txt \
 -type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data/0_Face_3D/3_ESRC_OBJ \
 -preffix_bbox _bbox -preffix_save _lm2d_v3
+
+th main_image.lua -input /data/0_Face_3D/3_ESRC_OBJ/ -name_gl train_render.txt \
+-type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data/0_Face_3D/3_ESRC_OBJ \
+-preffix_bbox _bbox_deca -preffix_save _lm2d_v3_deca
+
 --]]
 
 require 'torch'
