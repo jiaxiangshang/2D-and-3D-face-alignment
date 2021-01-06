@@ -3,6 +3,7 @@ nvidia-docker run -it -v /data0/0_DATA:/data 1adrianb/facealignment-torch
 
 docker exec -it cool_nightingale /bin/bash
 
+# esrc
 th main_image.lua -input /data/0_Face_3D/3_ESRC_OBJ/ -name_gl train_render.txt \
 -type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data/0_Face_3D/3_ESRC_OBJ \
 -preffix_bbox _bbox -preffix_save _lm2d_v3
@@ -10,6 +11,11 @@ th main_image.lua -input /data/0_Face_3D/3_ESRC_OBJ/ -name_gl train_render.txt \
 th main_image.lua -input /data/0_Face_3D/3_ESRC_OBJ/ -name_gl train_render.txt \
 -type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data/0_Face_3D/3_ESRC_OBJ \
 -preffix_bbox _bbox_deca -preffix_save _lm2d_v3_deca
+
+# tencent test
+th main_image.lua -input /data/1_Face_2D/20_tencent_video_GL/ -name_gl test.txt \
+-type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data0/0_DATA/1_Face_2D/20_tencent_video_GL \
+-preffix_bbox _bbox -preffix_save _lm2d_v3
 
 --]]
 
@@ -45,8 +51,6 @@ end
 
 function getGlobalList(data_path)
     print('getGlobalList...')
-
-
     local filesList = {}
     cnt = 1
     file = io.open(data_path,"r");
@@ -226,12 +230,13 @@ for i = 1, #fileList do
       elseif opts.outputFormat == 'txt' then
         -- csv without header
         local out = torch.DiskFile(dest .. opts.preffix_save .. '.txt', 'w')
+        out:writeString(tostring(68) .. '\n')
         for i=1,68 do
               print(preds_img:size(1), preds_img:size(2))
               if preds_img:size(3)==3 then
                   out:writeString(tostring(preds_img[{1, i,1}]) .. ',' .. tostring(preds_img[{1, i,2}]) .. ',' .. tostring(preds_img[{1, i,3}]) .. '\n')
               else
-                out:writeString(tostring(preds_img[{1, i,1}]) .. ',' .. tostring(preds_img[{1, i,2}]) .. '\n')
+                  out:writeString(tostring(preds_img[{1, i,1}]) .. ',' .. tostring(preds_img[{1, i,2}]) .. '\n')
               end
         end
         out:close()
