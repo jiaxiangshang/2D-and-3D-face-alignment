@@ -1,0 +1,94 @@
+centos
+gcc 4.8.5
+
+yum install gcc-gfortran
+yum install atlas atlas-devel lapack-devel blas-devel
+cd OpenBLAS/
+make clean
+make CC=gcc FC=gfortran USE_OPENMP=1 NUM_THREADS=8 NO_AFFINITY=1
+sudo make install
+
+# cuda 9
+git clone https://github.com/torch/distro.git ~/torch --recursive
+export CMAKE_LIBRARY_PATH=/opt/OpenBLAS/include:/opt/OpenBLAS/lib:$CMAKE_LIBRARY_PATH
+./install.sh
+# cuda 10
+git clone https://github.com/nagadomi/distro.git ~/torch --recursive
+cd ~/torch
+./install-deps
+./clean.sh
+./update.sh
+export CMAKE_LIBRARY_PATH=/opt/OpenBLAS/include:/opt/OpenBLAS/lib:$CMAKE_LIBRARY_PATH
+./install.sh
+
+# if fail
+git submodule update --init --recursive
+
+cd ~/torch; bash install-deps;
+# if fail
+install by apt/yum yourself
+
+wget http://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+rpm -ivh epel-release-latest-7.noarch.rpm
+sudo yum -y install htop
+
+sudo yum install -y epel-release # a lot of things live in EPEL
+sudo yum install -y make cmake curl readline-devel ncurses-devel \
+sudo yum install -y  gcc-c++ gcc-gfortran \
+sudo yum install -y git gnuplot unzip \
+libjpeg-turbo-devel libpng-devel \
+ImageMagick GraphicsMagick-devel fftw-devel \
+sox-devel sox zeromq3-devel \
+qt-devel qtwebkit-devel sox-plugins-freeworld
+sudo yum install -y python-ipython
+
+
+
+
+# Install lua lib
+luarocks --from=https://luarocks.org install image
+# Install lua packages
+luarocks install xlua
+luarocks --from=https://luarocks.org install matio
+luarocks install --server=https://luarocks.org/dev matio
+git clone https://github.com/Lmy0217/matio-ffi.torch.git
+luarocks make rockspec/*
+luarocks install cudnn
+
+# fail???
+
+# Build thpp
+#pre
+yum install glog-devel.x86_64
+yum install gflags-devel.x86_64
+git clone https://github.com/facebook/thpp
+cd thpp
+git fetch origin pull/33/head:NEWBRANCH && git checkout NEWBRANCH
+cd thpp
+THPP_NOFB=1 ./build.sh
+
+# fail
+git clone https://github.com/1adrianb/thpp.git
+
+
+# Build fb.python
+git clone https://github.com/facebook/fblualib
+cd fblualib/fblualib/python
+vim CMakeLists.txt
+
+FIND_PACKAGE(PythonInterp 2.7)
+FIND_PACKAGE(PythonInterp 2.7 PATHS /apdcephfs/share_1041553/anaconda3/envs/mvfnet)
+FIND_PACKAGE(PythonInterp 2.7 PythonInterp_DIR /apdcephfs/share_1041553/anaconda3/envs/mvfnet/bin)
+
+-DPYTHON_INCLUDE_DIR=/apdcephfs/share_1041553/anaconda3/envs/mvfnet/include/python2.7 \
+-DPYTHON_LIBRARY=/apdcephfs/share_1041553/anaconda3/envs/mvfnet/lib/python2.7/config \
+
+
+-DPYTHON_INCLUDE_DIR=/root/anaconda3/envs/mvfnet/include/python2.7 \
+-DPYTHON_LIBRARY=/root/anaconda3/envs/mvfnet/lib/python2.7/config \
+
+luarocks make rockspec/*
+
+# fail at find package
+https://www.coder.work/article/123838
+

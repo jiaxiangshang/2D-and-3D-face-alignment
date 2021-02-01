@@ -12,11 +12,29 @@ th main_image.lua -input /data/0_Face_3D/3_ESRC_OBJ/ -name_gl train_render.txt \
 -type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data/0_Face_3D/3_ESRC_OBJ \
 -preffix_bbox _bbox_deca -preffix_save _lm2d_v3_deca
 
+# GAN
+th main_image.lua -input /data0/0_DATA/1_Face_2D/40_stylegan2_256_500000/ -name_gl train.txt -fmt_gl .png \
+-type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data0/0_DATA/1_Face_2D/40_stylegan2_256_500000 \
+-preffix_bbox _bbox -preffix_save _lm2d_v3
+
+th main_image.lua -input /data0/0_DATA/1_Face_2D/40_stylegan2_256_500000/ -name_gl train.txt -fmt_gl .png \
+-type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data0/0_DATA/1_Face_2D/40_stylegan2_256_500000 \
+-preffix_bbox _bbox_deca -preffix_save _lm2d_v3_deca
+
 # tencent test
 th main_image.lua -input /data/1_Face_2D/20_tencent_video_GL/ -name_gl test.txt \
 -type 3D -model /data/0_Face_3D/10_FAN/3D-FAN.t7  -output  /data0/0_DATA/1_Face_2D/20_tencent_video_GL \
 -preffix_bbox _bbox -preffix_save _lm2d_v3
 
+# tecent server
+# celebA
+CUDA_VISIBLE_DEVICES=1  th main_image.lua -input /apdcephfs/private_alexinwang/jxshang/data/0_3DFace_Train/2_mono/6_celebvoxel2/6_voxel_celeb2_GL/ -name_gl train.txt \
+-type 3D -model /apdcephfs/private_alexinwang/jxshang/project/deeplearning_python/dl_model/3D-FAN.t7  -output /apdcephfs/private_alexinwang/jxshang/data/0_3DFace_Train/2_mono/6_celebvoxel2/6_voxel_celeb2_GL \
+-preffix_bbox _bbox -preffix_save _lm2d_v3
+
+th main_image.lua -input /apdcephfs/private_alexinwang/jxshang/data/0_3DFace_Train/2_mono/6_celebvoxel2/6_voxel_celeb2_GL/ -name_gl train.txt \
+-type 3D -model /apdcephfs/private_alexinwang/jxshang/project/deeplearning_python/dl_model/3D-FAN.t7  -output /apdcephfs/private_alexinwang/jxshang/data/0_3DFace_Train/2_mono/6_celebvoxel2/6_voxel_celeb2_GL \
+-preffix_bbox _bbox_deca -preffix_save _lm2d_v3_deca
 --]]
 
 require 'torch'
@@ -140,7 +158,7 @@ for i = 1, #fileList do
     local name_subfolder = list_gl[1]
     local name_pure = list_gl[2]
 
-    local path_image = data_top..name_subfolder..'/'..name_pure..'.jpg'
+    local path_image = data_top..name_subfolder..'/'..name_pure..opt.fmt_gl
     local path_bbox = data_top..name_subfolder..'/'..name_pure..opts.preffix_bbox..'.txt'
     local img = image.load(path_image)
     local detectedFace = getBBox(path_bbox)
@@ -232,7 +250,7 @@ for i = 1, #fileList do
         local out = torch.DiskFile(dest .. opts.preffix_save .. '.txt', 'w')
         out:writeString(tostring(68) .. '\n')
         for i=1,68 do
-              print(preds_img:size(1), preds_img:size(2))
+              --print(preds_img:size(1), preds_img:size(2))
               if preds_img:size(3)==3 then
                   out:writeString(tostring(preds_img[{1, i,1}]) .. ',' .. tostring(preds_img[{1, i,2}]) .. ',' .. tostring(preds_img[{1, i,3}]) .. '\n')
               else
